@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Color Catcher</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #1a1a1a;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .centered-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #home-screen, #game-screen, #game-over-screen {
+      display: none;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      color: #00ffcc;
+    }
+
+    p {
+      font-size: 18px;
+      color: #ccc;
+    }
+
+    button {
+      margin: 10px;
+      padding: 12px 24px;
+      font-size: 18px;
+      cursor: pointer;
+      background-color: #00ffcc;
+      color: #1a1a1a;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #00ddb3;
+    }
+
+    #score {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    #instruction {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    #boxes {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 30px;
+      max-width: 700px;
+    }
+
+    .color-box {
+      width: 90px;
+      height: 90px;
+      cursor: pointer;
+      border-radius: 12px;
+      border: 3px solid white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .color-box:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.6);
+    }
+
+    #final-score {
+      font-size: 28px;
+      margin: 10px 0 20px 0;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Home Screen -->
+  <div id="home-screen" class="centered-screen">
+    <h1>🎨 Color Catcher</h1>
+    <p>Click the correct color box before you miss!</p>
+    <button onclick="startGame()">Start Game</button>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="game-screen" class="centered-screen">
+    <div id="score">Score: 0</div>
+    <div id="instruction">Click the <span id="target-color">red</span> box</div>
+    <div id="boxes"></div>
+  </div>
+
+  <!-- Game Over Screen -->
+  <div id="game-over-screen" class="centered-screen">
+    <h1>💀 Game Over</h1>
+    <div id="final-score">Your score: 0</div>
+    <div class="button-group">
+      <button onclick="startGame()">Play Again</button>
+      <button onclick="goHome()">Back to Home</button>
+    </div>
+    
+  </div>
+
+  <script>
+    const colors = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'cyan', 'pink', 'lime', 'magenta'];
+    let score = 0;
+    let target = '';
+    let gameOver = false;
+
+    const homeScreen = document.getElementById('home-screen');
+    const gameScreen = document.getElementById('game-screen');
+    const gameOverScreen = document.getElementById('game-over-screen');
+
+    const scoreEl = document.getElementById('score');
+    const instructionEl = document.getElementById('target-color');
+    const boxesEl = document.getElementById('boxes');
+    const finalScoreEl = document.getElementById('final-score');
+
+    function randomColor() {
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function generateBoxes() {
+      boxesEl.innerHTML = '';
+      const pickedColors = [];
+
+      while (pickedColors.length < 6) {
+        const color = randomColor();
+        if (!pickedColors.includes(color)) pickedColors.push(color);
+      }
+
+      target = pickedColors[Math.floor(Math.random() * pickedColors.length)];
+      instructionEl.textContent = target;
+
+      pickedColors.forEach(color => {
+        const box = document.createElement('div');
+        box.className = 'color-box';
+        box.style.backgroundColor = color;
+        box.addEventListener('click', () => {
+          if (gameOver) return;
+          if (color === target) {
+            score++;
+            scoreEl.textContent = `Score: ${score}`;
+            generateBoxes();
+          } else {
+            endGame();
+          }
+        });
+        boxesEl.appendChild(box);
+      });
+    }
+
+    function startGame() {
+      score = 0;
+      gameOver = false;
+      scoreEl.textContent = `Score: ${score}`;
+      homeScreen.style.display = 'none';
+      gameOverScreen.style.display = 'none';
+      gameScreen.style.display = 'flex';
+      generateBoxes();
+    }
+
+    function endGame() {
+      gameOver = true; 
+      finalScoreEl.textContent = `Your score: ${score}`;
+      gameScreen.style.display = 'none';
+      gameOverScreen.style.display = 'flex';
+    }
+
+    function goHome() {
+      gameScreen.style.display = 'none';
+      gameOverScreen.style.display = 'none';
+      homeScreen.style.display = 'flex';
+    }
+
+    // Show home screen on load
+    homeScreen.style.display = 'flex';
+  </script>
+</body>
+</html>
